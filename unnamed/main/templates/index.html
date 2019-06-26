@@ -1,0 +1,104 @@
+<!doctype html>
+<html lang="en">
+
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.1.3/css/bootstrap.min.css"
+        integrity="sha384-MCw98/SFnGE8fJT3GXwEOngsV7Zt27NXFoaoApmYm81iuXoPkFOJwJ8ERdknLPMO" crossorigin="anonymous">
+    <title>Unnamed app</title>
+</head>
+
+<body>
+    <div class="container">
+
+        <h1 class="mt-1"><a href='/main'>Unnamed app</a></h1>
+
+        {% load get_attr %}
+        {% load addstr %}
+        {% block content %}
+
+        <a class="btn btn-primary" href="clear">clean db</a>
+        <a class="btn btn-primary" href="generate">generate test db</a>
+        <a class="btn btn-primary" href="export">to excel</a>
+        {% if export_filtered %}
+        <a class="btn btn-primary" href="export_filtered">to excel filtered</a>
+        {% endif %}
+
+        <form action="/main/" method="post">
+            {% csrf_token %}
+            <p>
+                Select Columns
+                <br>
+                {% for ff in form.fields %}
+                {{ ff }}
+                {%endfor%}
+            </p>
+            <p>
+                FILTER
+                {{ filter_form.filter_column }}
+                WITH
+                {{ filter_form.filter_type }}
+                {{ filter_form.value }}
+            </p>
+            <p>
+                Order BY
+                {{ order_form.order_column }}
+                {{ order_form.order_type }}
+            </p>
+            <input type="submit" value="apply all">
+        </form>
+
+        {% if table %}
+        <table class="table table-sm">
+            <thead>
+                <tr>
+                    {% for field in fields.purchase %}
+                    <th>{{ "purchase "|addstr:field }}</th>
+                    {% endfor %}
+
+                    {% for field in fields.item %}
+                    <th>{{ "item "|addstr:field }}</th>
+                    {% endfor %}
+
+                    {% for field in fields.customer %}
+                    <th>{{ "user "|addstr:field }}</th>
+                    {% endfor %}
+                </tr>
+            </thead>
+
+            <tbody>
+
+                {% for x in table %}
+                <tr>
+                    {% for field in fields.purchase %}
+                    <td>
+                        {{ x|get_attr:field }}
+                    </td>
+                    {% endfor %}
+
+                    {% for field in fields.item %}
+                    <td>
+                        {{ x.item|get_attr:field }}
+                    </td>
+                    {% endfor %}
+
+                    {% for field in fields.customer %}
+                    <td>
+                        {{ x.customer|get_attr:field }}
+                    </td>
+                    {% endfor %}
+                </tr>
+                {% endfor %}
+
+            </tbody>
+        </table>
+        {% else %}
+        <p>empty db.</p>
+        {% endif %}
+        {% endblock %}
+    </div>
+
+</body>
+
+</html>
